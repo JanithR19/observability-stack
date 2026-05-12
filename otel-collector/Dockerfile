@@ -1,4 +1,4 @@
-FROM grafana/otel-collector:latest
+FROM otel/opentelemetry-collector-contrib:latest
 
 # Copy the configuration file
 COPY otel-config.yaml /etc/otel-collector-config.yaml
