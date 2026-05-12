@@ -34,24 +34,34 @@ otelcol.exporter.otlp "tempo" {
   }
 }
 
-// 3. Export Logs to Loki with Relabeling
+// 3. Export Logs to Loki
 otelcol.exporter.loki "default" {
   forward_to = [loki.relabel.default.receiver]
 }
 
+// Aggressive relabeling to catch service.name from OTel
 loki.relabel "default" {
   forward_to = [loki.write.default.receiver]
 
+  // Rule 1: Catch service.name
   rule {
     action       = "replace"
     source_labels = ["__meta_otel_resource_service_name"]
     target_label  = "service"
   }
-  
+
+  // Rule 2: Fallback for service.name
   rule {
     action       = "replace"
-    source_labels = ["__meta_otel_resource_service_name"]
-    target_label  = "job"
+    source_labels = ["service_name"]
+    target_label  = "service"
+  }
+
+  // Rule 3: Set a static job label so Loki always has at least one index
+  rule {
+    action       = "replace"
+    target_label = "job"
+    replacement  = "otel-logs"
   }
 }
 
