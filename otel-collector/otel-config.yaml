@@ -19,9 +19,9 @@ processors:
         from_attribute: service.name
 
 exporters:
-  # Tempo for traces
-  otlp:
-    endpoint: ${env:TEMPO_ENDPOINT:-tempo:4317}
+  # Tempo for traces via HTTP (bypasses gRPC firewall issues)
+  otlphttp/tempo:
+    endpoint: ${env:TEMPO_ENDPOINT:-http://tempo:4318/v1/traces}
     tls:
       insecure: true
   
@@ -42,7 +42,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
+      exporters: [otlphttp/tempo]
     metrics:
       receivers: [otlp]
       processors: [batch, resource]
