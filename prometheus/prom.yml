@@ -17,3 +17,8 @@ scrape_configs:
   - job_name: 'tempo'
     static_configs:
       - targets: ['tempo:3200']
+
+  - job_name: 'microservices'
+    metrics_path: '/health/live'
+    static_configs:
+      - targets: ['microservice-test:3000']

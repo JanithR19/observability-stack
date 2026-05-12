@@ -50,8 +50,8 @@ loki.relabel "default" {
 
   rule {
     action       = "replace"
-    target_label = "job"
-    replacement  = "otel-logs"
+    source_labels = ["__meta_otel_resource_service_name"]
+    target_label  = "job"
   }
 }
 
