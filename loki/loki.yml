@@ -5,9 +5,16 @@ server:
   grpc_listen_port: 9095
   log_level: info
 
+# Enable OTLP receiver at the root level
+otlp:
+  receiver:
+    http:
+      enabled: true
+    grpc:
+      enabled: true
+
 common:
   instance_addr: 127.0.0.1
-  path_prefix: /loki
   replication_factor: 1
   ring:
     kvstore:

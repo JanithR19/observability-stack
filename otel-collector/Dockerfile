@@ -1,10 +1,10 @@
-FROM otel/opentelemetry-collector-contrib:0.114.0
+FROM grafana/alloy:latest
 
 # Copy the configuration file
-COPY otel-config.yaml /etc/otel-collector-config.yaml
+COPY config.alloy /etc/alloy/config.alloy
 
 # Expose the necessary ports
-EXPOSE 4317 4318 13133
+EXPOSE 4317 4318 12345
 
-# Start the collector with the configuration
-CMD ["--config=/etc/otel-collector-config.yaml"]
+# Start Alloy with the configuration
+CMD ["run", "--server.http.listen-addr=0.0.0.0:12345", "/etc/alloy/config.alloy"]

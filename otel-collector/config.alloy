@@ -1,0 +1,46 @@
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.exporter.prometheus.default.input]
+    traces  = [otelcol.exporter.otlp.tempo.input]
+    logs    = [otelcol.exporter.loki.default.input]
+  }
+}
+
+// 1. Export Metrics to Prometheus
+otelcol.exporter.prometheus "default" {
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = sys.env("PROMETHEUS_ENDPOINT")
+  }
+}
+
+// 2. Export Traces to Tempo
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = sys.env("TEMPO_ENDPOINT")
+    tls {
+      insecure = true
+    }
+  }
+}
+
+// 3. Export Logs to Loki (Correctly mapping labels)
+otelcol.exporter.loki "default" {
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = sys.env("LOKI_ENDPOINT")
+  }
+}
