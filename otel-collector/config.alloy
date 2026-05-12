@@ -9,15 +9,7 @@ otelcol.receiver.otlp "default" {
   output {
     metrics = [otelcol.exporter.prometheus.default.input]
     traces  = [otelcol.exporter.otlp.tempo.input]
-    logs    = [otelcol.processor.resourcedetection.default.input]
-  }
-}
-
-// Detect resource attributes (like service.name)
-otelcol.processor.resourcedetection "default" {
-  detectors = ["env"]
-  output {
-    logs = [otelcol.exporter.loki.default.input]
+    logs    = [otelcol.exporter.loki.default.input]
   }
 }
 
@@ -42,16 +34,28 @@ otelcol.exporter.otlp "tempo" {
   }
 }
 
-// 3. Export Logs to Loki (With Label Mapping)
+// 3. Export Logs to Loki
 otelcol.exporter.loki "default" {
+  forward_to = [loki.process.labels.receiver]
+}
+
+// Extract the service name and make it a Loki label
+loki.process "labels" {
   forward_to = [loki.write.default.receiver]
+
+  stage.relabel {
+    rule {
+      source_labels = ["exporter"]
+      target_label  = "job"
+      replacement   = "integrations/otel"
+    }
+  }
 }
 
 loki.write "default" {
   endpoint {
     url = sys.env("LOKI_ENDPOINT")
   }
-  // This ensures Loki receives the service name as a searchable label
   external_labels = {
     cluster = "railway",
   }
