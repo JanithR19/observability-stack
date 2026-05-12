@@ -1,6 +1,4 @@
-ARG VERSION=3.4
-
-FROM grafana/loki:${VERSION}
+FROM grafana/loki:3.3.2
 
 # Copy the loki.yml configuration file to the container
 COPY loki.yml /etc/loki/loki-config.yaml
@@ -8,5 +6,5 @@ COPY loki.yml /etc/loki/loki-config.yaml
 # Expose ports for internal networking
 EXPOSE 3100 9095
 
-# Command to run Loki with OTLP enabled via flags to bypass YAML parsing issues
+# Command to run Loki with config expansion enabled
 CMD ["-config.file=/etc/loki/loki-config.yaml", "-config.expand-env=true"]
