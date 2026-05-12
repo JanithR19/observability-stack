@@ -34,29 +34,29 @@ otelcol.exporter.otlp "tempo" {
   }
 }
 
-// 3. Export Logs to Loki
+// 3. Export Logs to Loki with Relabeling
 otelcol.exporter.loki "default" {
-  forward_to = [loki.process.labels.receiver]
+  forward_to = [loki.relabel.default.receiver]
 }
 
-// Extract the service name and make it a Loki label
-loki.process "labels" {
+loki.relabel "default" {
   forward_to = [loki.write.default.receiver]
 
-  stage.relabel {
-    rule {
-      source_labels = ["exporter"]
-      target_label  = "job"
-      replacement   = "integrations/otel"
-    }
+  rule {
+    action       = "replace"
+    source_labels = ["__meta_otel_resource_service_name"]
+    target_label  = "service"
+  }
+  
+  rule {
+    action       = "replace"
+    source_labels = ["__meta_otel_resource_service_name"]
+    target_label  = "job"
   }
 }
 
 loki.write "default" {
   endpoint {
     url = sys.env("LOKI_ENDPOINT")
-  }
-  external_labels = {
-    cluster = "railway",
   }
 }
