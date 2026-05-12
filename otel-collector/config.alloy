@@ -9,8 +9,13 @@ otelcol.receiver.otlp "default" {
   output {
     metrics = [otelcol.exporter.prometheus.default.input]
     traces  = [otelcol.exporter.otlphttp.tempo.input]
-    logs    = [otelcol.exporter.loki.default.input]
+    logs    = [otelcol.exporter.loki.default.input, otelcol.exporter.debug.default.input]
   }
+}
+
+// Debug exporter to see exactly what is being sent
+otelcol.exporter.debug "default" {
+    verbosity = "detailed"
 }
 
 // 1. Export Metrics to Prometheus
@@ -24,7 +29,7 @@ prometheus.remote_write "default" {
   }
 }
 
-// 2. Export Traces to Tempo via HTTP (Stable Path)
+// 2. Export Traces to Tempo
 otelcol.exporter.otlphttp "tempo" {
   client {
     endpoint = sys.env("TEMPO_ENDPOINT")
@@ -39,19 +44,12 @@ otelcol.exporter.loki "default" {
   forward_to = [loki.relabel.default.receiver]
 }
 
-// Aggressive relabeling to catch service.name from OTel
 loki.relabel "default" {
   forward_to = [loki.write.default.receiver]
 
   rule {
     action       = "replace"
     source_labels = ["__meta_otel_resource_service_name"]
-    target_label  = "service"
-  }
-
-  rule {
-    action       = "replace"
-    source_labels = ["service_name"]
     target_label  = "service"
   }
 
