@@ -36,42 +36,7 @@ otelcol.exporter.otlphttp "tempo" {
 
 // 3. Export Logs to Loki
 otelcol.exporter.loki "default" {
-  forward_to = [loki.process.json.receiver]
-}
-
-// Parse JSON body to extract service name if present
-loki.process "json" {
-  forward_to = [loki.relabel.default.receiver]
-
-  stage.json {
-    expressions = {
-      extracted_service = "resources.\"service.name\"",
-    }
-  }
-
-  stage.labels {
-    values = {
-      service_name = "extracted_service",
-    }
-  }
-}
-
-loki.relabel "default" {
   forward_to = [loki.write.default.receiver]
-
-  // Now that we have the correct service_name (either from OTel defaults or extracted from JSON),
-  // we copy it to 'service' and 'job' so you can use any of those labels in Grafana.
-  rule {
-    action       = "replace"
-    source_labels = ["service_name"]
-    target_label  = "service"
-  }
-
-  rule {
-    action       = "replace"
-    source_labels = ["service_name"]
-    target_label  = "job"
-  }
 }
 
 loki.write "default" {
