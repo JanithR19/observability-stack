@@ -8,7 +8,7 @@ otelcol.receiver.otlp "default" {
 
   output {
     metrics = [otelcol.exporter.prometheus.default.input]
-    traces  = [otelcol.exporter.otlp.tempo.input]
+    traces  = [otelcol.exporter.otlphttp.tempo.input]
     logs    = [otelcol.exporter.loki.default.input]
   }
 }
@@ -25,7 +25,7 @@ prometheus.remote_write "default" {
 }
 
 // 2. Export Traces to Tempo
-otelcol.exporter.otlp "tempo" {
+otelcol.exporter.otlphttp "tempo" {
   client {
     endpoint = sys.env("TEMPO_ENDPOINT")
     tls {
