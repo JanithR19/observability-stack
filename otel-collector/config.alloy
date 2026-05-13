@@ -51,7 +51,7 @@ loki.process "json" {
 
   stage.labels {
     values = {
-      service = "extracted_service",
+      service_name = "extracted_service",
     }
   }
 }
@@ -59,24 +59,17 @@ loki.process "json" {
 loki.relabel "default" {
   forward_to = [loki.write.default.receiver]
 
-  // 1. Try to get the name from the OTel Resource Attribute
-  rule {
-    action       = "replace"
-    source_labels = ["__meta_otel_resource_service_name"]
-    target_label  = "service"
-  }
-
-  // 2. Fallback: If the OTel exporter already produced a 'service_name' label
+  // Now that we have the correct service_name (either from OTel defaults or extracted from JSON),
+  // we copy it to 'service' and 'job' so you can use any of those labels in Grafana.
   rule {
     action       = "replace"
     source_labels = ["service_name"]
     target_label  = "service"
   }
 
-  // 3. Ensure 'job' matches 'service' for consistency
   rule {
     action       = "replace"
-    source_labels = ["service"]
+    source_labels = ["service_name"]
     target_label  = "job"
   }
 }
