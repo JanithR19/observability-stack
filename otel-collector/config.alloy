@@ -9,7 +9,14 @@ otelcol.receiver.otlp "default" {
   output {
     metrics = [otelcol.exporter.prometheus.default.input]
     traces  = [otelcol.exporter.otlphttp.tempo.input]
-    logs    = [otelcol.exporter.loki.default.input]
+    logs    = [otelcol.processor.resource.default.input]
+  }
+}
+
+// Ensure resource attributes like service.name are processed correctly
+otelcol.processor.resource "default" {
+  output {
+    logs = [otelcol.exporter.loki.default.input]
   }
 }
 
@@ -42,15 +49,24 @@ otelcol.exporter.loki "default" {
 loki.relabel "default" {
   forward_to = [loki.write.default.receiver]
 
+  // 1. Try to get the name from the OTel Resource Attribute
   rule {
     action       = "replace"
     source_labels = ["__meta_otel_resource_service_name"]
     target_label  = "service"
   }
 
+  // 2. Fallback: If the OTel exporter already produced a 'service_name' label
   rule {
     action       = "replace"
-    source_labels = ["__meta_otel_resource_service_name"]
+    source_labels = ["service_name"]
+    target_label  = "service"
+  }
+
+  // 3. Ensure 'job' matches 'service' for consistency
+  rule {
+    action       = "replace"
+    source_labels = ["service"]
     target_label  = "job"
   }
 }
