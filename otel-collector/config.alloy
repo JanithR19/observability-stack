@@ -45,7 +45,7 @@ loki.process "json" {
 
   stage.json {
     expressions = {
-      extracted_service = "resources[\"service.name\"]",
+      extracted_service = "resources.\"service.name\"",
     }
   }
 
