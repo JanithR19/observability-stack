@@ -9,14 +9,7 @@ otelcol.receiver.otlp "default" {
   output {
     metrics = [otelcol.exporter.prometheus.default.input]
     traces  = [otelcol.exporter.otlphttp.tempo.input]
-    logs    = [otelcol.processor.resource.default.input]
-  }
-}
-
-// Ensure resource attributes like service.name are processed correctly
-otelcol.processor.resource "default" {
-  output {
-    logs = [otelcol.exporter.loki.default.input]
+    logs    = [otelcol.exporter.loki.default.input]
   }
 }
 
@@ -43,7 +36,24 @@ otelcol.exporter.otlphttp "tempo" {
 
 // 3. Export Logs to Loki
 otelcol.exporter.loki "default" {
+  forward_to = [loki.process.json.receiver]
+}
+
+// Parse JSON body to extract service name if present
+loki.process "json" {
   forward_to = [loki.relabel.default.receiver]
+
+  stage.json {
+    expressions = {
+      extracted_service = "resources[\"service.name\"]",
+    }
+  }
+
+  stage.labels {
+    values = {
+      service = "extracted_service",
+    }
+  }
 }
 
 loki.relabel "default" {
