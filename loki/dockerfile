@@ -6,5 +6,5 @@ COPY loki.yml /etc/loki/loki-config.yaml
 # Expose ports for internal networking
 EXPOSE 3100 9095
 
-# Command to run Loki with config expansion enabled
+# Command to run Loki with config expansion enabled 
 CMD ["-config.file=/etc/loki/loki-config.yaml", "-config.expand-env=true"]
