@@ -7,13 +7,34 @@ otelcol.receiver.otlp "default" {
   }
 
   output {
-    metrics = [otelcol.exporter.prometheus.default.input]
+    metrics = [otelcol.processor.batch.default.input]
+    traces  = [otelcol.processor.batch.default.input]
+    logs    = [otelcol.processor.batch.default.input]
+  }
+}
+
+// 1. Batching for all signals (Performance)
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.processor.resource.service_mapping.input]
     traces  = [otelcol.exporter.otlphttp.tempo.input]
     logs    = [otelcol.exporter.loki.default.input]
   }
 }
 
-// 1. Export Metrics to Prometheus
+// 2. Map service.name to service label for Prometheus (Matching otel-config.yaml)
+otelcol.processor.resource "service_mapping" {
+  attributes {
+    action = "upsert"
+    key    = "service"
+    from_attribute = "service.name"
+  }
+  output {
+    metrics = [otelcol.exporter.prometheus.default.input]
+  }
+}
+
+// 3. Export Metrics to Prometheus
 otelcol.exporter.prometheus "default" {
   forward_to = [prometheus.remote_write.default.receiver]
 }
@@ -24,17 +45,18 @@ prometheus.remote_write "default" {
   }
 }
 
-// 2. Export Traces to Tempo
+// 4. Export Traces to Tempo
 otelcol.exporter.otlphttp "tempo" {
   client {
-    endpoint = sys.env("TEMPO_ENDPOINT")
+    // Note: ensure TEMPO_ENDPOINT includes /v1/traces if not using default
+    endpoint = sys.env("TEMPO_ENDPOINT") 
     tls {
       insecure = true
     }
   }
 }
 
-// 3. Export Logs to Loki
+// 5. Export Logs to Loki
 otelcol.exporter.loki "default" {
   forward_to = [loki.write.default.receiver]
 }
