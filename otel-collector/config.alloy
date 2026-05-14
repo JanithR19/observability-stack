@@ -29,7 +29,7 @@ otelcol.processor.transform "service_mapping" {
     context = "resource"
     statements = [
       "set(attributes[\"service\"], attributes[\"service.name\"])",
-      "delete(attributes[\"job\"])",
+      "delete_key(attributes, \"job\")",
     ]
   }
   output {
