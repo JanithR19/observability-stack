@@ -16,18 +16,21 @@ otelcol.receiver.otlp "default" {
 // 1. Batching for all signals (Performance)
 otelcol.processor.batch "default" {
   output {
-    metrics = [otelcol.processor.resource.service_mapping.input]
+    metrics = [otelcol.processor.transform.service_mapping.input]
     traces  = [otelcol.exporter.otlphttp.tempo.input]
     logs    = [otelcol.exporter.loki.default.input]
   }
 }
 
 // 2. Map service.name to service label for Prometheus (Matching otel-config.yaml)
-otelcol.processor.resource "service_mapping" {
-  attributes {
-    action = "upsert"
-    key    = "service"
-    from_attribute = "service.name"
+otelcol.processor.transform "service_mapping" {
+  error_mode = "ignore"
+  metric_statements {
+    context = "resource"
+    statements = [
+      "set(attributes[\"service\"], attributes[\"service.name\"])",
+      "delete(attributes[\"job\"])",
+    ]
   }
   output {
     metrics = [otelcol.exporter.prometheus.default.input]
