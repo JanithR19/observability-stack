@@ -17,7 +17,7 @@ otelcol.receiver.otlp "default" {
 otelcol.processor.batch "default" {
   output {
     metrics = [otelcol.processor.transform.service_mapping.input]
-    traces  = [otelcol.exporter.otlphttp.tempo.input]
+    traces  = [otelcol.exporter.otlphttp.tempo.input, otelcol.exporter.debug.default.input]
     logs    = [otelcol.exporter.loki.default.input]
   }
 }
@@ -68,4 +68,9 @@ loki.write "default" {
   endpoint {
     url = sys.env("LOKI_ENDPOINT")
   }
+}
+
+// 6. Debug exporter for troubleshooting
+otelcol.exporter.debug "default" {
+  verbosity = "basic"
 }
