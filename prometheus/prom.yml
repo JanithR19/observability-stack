@@ -28,3 +28,8 @@ scrape_configs:
     static_configs:
       - targets: ["microservice-test:3000"]
 
+  # Scrapes metrics from the NestJS API Gateway
+  - job_name: "nestservice-test"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["nestservice-test:3000"]
