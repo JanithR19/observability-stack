@@ -22,14 +22,33 @@ scrape_configs:
     static_configs:
       - targets: ["tempo:3200"]
 
-  # Scrapes your NestJS microservice metrics (automatically mapped to NestJS Prometheus endpoint)
-  - job_name: "microservice-test"
-    metrics_path: "/metrics"
+  # Scrapes native /metrics endpoints via Gateway
+  - job_name: "ai-auth-service"
+    metrics_path: "/auth/metrics"
+    scheme: "https"
+    tls_config:
+      server_name: "api-gateway-dev-1f8e.up.railway.app"
     static_configs:
-      - targets: ["microservice-test:3000"]
+      - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
+        labels:
+          service: "ai-auth-service"
 
-  # Scrapes metrics from the NestJS API Gateway
-  - job_name: "nestservice-test"
-    metrics_path: "/metrics"
+  - job_name: "ai-portal-service"
+    metrics_path: "/portal/metrics"
+    scheme: "https"
+    tls_config:
+      server_name: "api-gateway-dev-1f8e.up.railway.app"
     static_configs:
-      - targets: ["nestservice-test:3000"]
+      - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
+        labels:
+          service: "ai-portal-service"
+
+  - job_name: "ai-api"
+    metrics_path: "/api/metrics"
+    scheme: "https"
+    tls_config:
+      server_name: "api-gateway-dev-1f8e.up.railway.app"
+    static_configs:
+      - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
+        labels:
+          service: "ai-api"
