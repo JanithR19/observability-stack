@@ -23,44 +23,32 @@ scrape_configs:
       - targets: ["tempo:3200"]
 
   # Scrapes native /metrics endpoints via Gateway
-  - job_name: "ai-auth-service"
-    metrics_path: "/auth/metrics"
+  - job_name: "ai-services"
+    metrics_path: "/metrics"
     scheme: "https"
     static_configs:
       - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
         labels:
           service: "ai-auth-service"
-
-  - job_name: "ai-portal-service"
-    metrics_path: "/portal/metrics"
-    scheme: "https"
-    static_configs:
+          __metrics_path__: "/auth/metrics"
       - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
         labels:
           service: "ai-portal-service"
+          __metrics_path__: "/portal/metrics"
+      
+      # Uncomment the sections below as you fix/deploy their /metrics endpoints:
+      
+      # - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
+      #   labels:
+      #     service: "ai-rules-engine"
+      #     __metrics_path__: "/rules/metrics"
           
-  # Uncomment the jobs below as you fix/deploy their /metrics endpoints:
-  
-  # - job_name: "ai-rules-engine"
-  #   metrics_path: "/rules/metrics"
-  #   scheme: "https"
-  #   static_configs:
-  #     - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
-  #       labels:
-  #         service: "ai-rules-engine"
-
-  # - job_name: "ses-ai-assistant-service"
-  #   metrics_path: "/ai-assistant/metrics"
-  #   scheme: "https"
-  #   static_configs:
-  #     - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
-  #       labels:
-  #         service: "ses-ai-assistant-service"
-
-  # - job_name: "ai-api"
-  #   metrics_path: "/api/metrics"
-  #   scheme: "https"
-  #   static_configs:
-  #     - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
-  #       labels:
-  #         service: "ai-api"
+      # - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
+      #   labels:
+      #     service: "ses-ai-assistant-service"
+      #     __metrics_path__: "/ai-assistant/metrics"
+          
+      # - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
+      #   labels:
+      #     service: "ai-api"
+      #     __metrics_path__: "/api/metrics"
