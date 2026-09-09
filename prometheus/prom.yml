@@ -52,3 +52,23 @@ scrape_configs:
       - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
         labels:
           service: "ai-api"
+
+  - job_name: "ai-rules-engine"
+    metrics_path: "/rules/metrics"
+    scheme: "https"
+    tls_config:
+      server_name: "api-gateway-dev-1f8e.up.railway.app"
+    static_configs:
+      - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
+        labels:
+          service: "ai-rules-engine"
+
+  - job_name: "ses-ai-assistant-service"
+    metrics_path: "/ai-assistant/metrics"
+    scheme: "https"
+    tls_config:
+      server_name: "api-gateway-dev-1f8e.up.railway.app"
+    static_configs:
+      - targets: ["api-gateway-dev-1f8e.up.railway.app:443"]
+        labels:
+          service: "ses-ai-assistant-service"
