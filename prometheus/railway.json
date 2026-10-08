@@ -7,7 +7,7 @@
     "deploy": {
         "runtime": "V2",
         "numReplicas": 1,
-        "startCommand": "prometheus --config.file=/etc/prometheus/prom.yml --storage.tsdb.path=/prometheus --web.enable-remote-write-receiver --storage.tsdb.retention.time=60d",
+        "startCommand": "prometheus --config.file=/etc/prometheus/prom.yml --storage.tsdb.path=/prometheus --web.enable-remote-write-receiver --storage.tsdb.retention.time=1d",
         "healthcheckPath": "/-/healthy",
         "sleepApplication": false,
         "restartPolicyType": "ON_FAILURE",
