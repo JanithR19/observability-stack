@@ -4,7 +4,7 @@ server:
 compactor:
   compaction:
     compaction_window: 1h
-    block_retention: 14d # 14 days retention policy for traces
+    block_retention: 336h # 14 days (14 * 24h) retention policy for traces
 
 storage:
   trace:
