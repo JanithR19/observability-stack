@@ -15,7 +15,9 @@ common:
 limits_config:
   allow_structured_metadata: true
   volume_enabled: true
-  retention_period: 48h # Restricts deep storage retention window to prevent disk bloating
+  retention_period: 30d # 30 days retention policy for logs
+  max_line_size: 2MB
+  max_line_size_truncate: true
 
 compactor:
   working_directory: /loki/compactor
